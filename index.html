@@ -27,11 +27,8 @@
         <div class='column is-8 is-offset-2'>
           <form @submit.prevent='add'>
             <div class='field has-addons'>
-              <p class='control'>
-                <input type='text' class='input' v-model='category' autocomplete='on' list='categories' placeholder='Category'>
-              </p>
               <p class='control is-expanded'>
-                <input type='text' class='input' v-model='description' placeholder='Input task'>
+                <input type='text' class='input' v-model='description' placeholder='Enter a task. (Separate by colon to categorize)' autocomplete='on' list='categories'>
               </p>
               <p class='control'>
                 <button class='button is-info' type='submit'>Add</button>
@@ -40,7 +37,7 @@
           </form>
 
           <datalist id='categories'>
-            <option v-for='n in categories' :key='n'>{{n}}</option>
+            <option v-for='category in compact_categories' :key='category'>{{category}}:</option>
           </datalist>
         </div>
       </div>
@@ -73,7 +70,6 @@
         el: '#container',
         data() {
           return {
-            category: '',
             description: '',
             tasks: [],
             useLocalStorage: true
@@ -82,6 +78,10 @@
         computed: {
           categories() {
             const c = this.tasks.map(t => t.category);
+            return Array.from(new Set(c)).sort(); // uniq
+          },
+          compact_categories() {
+            const c = this.tasks.filter(t => t.category).map(t => t.category);
             return Array.from(new Set(c)).sort(); // uniq
           }
         },
@@ -95,14 +95,16 @@
             return this.tasks.filter(t => t.category === category);
           },
           reset() {
-            this.category = null;
             this.description = null;
           },
           add() {
             if(this.description) {
+              const i = this.description.indexOf(':');
+              const cat = i > 0 ? this.description.substr(0, i) : '';
+              const desc = i > 0 ? this.description.substr(i+1) : this.description;
               this.tasks.push({
-                category: this.category || '',
-                description: this.description,
+                category: cat.trim(),
+                description: desc.trim(),
                 date: new Date().getTime()
               });
               this.save();
