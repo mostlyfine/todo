@@ -23,15 +23,15 @@
   </head>
   <body>
     <div id="container" class='container'>
-      <div class='columns is-mobile mt-3'>
+      <div class='columns is-narrow-mobile mt-3'>
         <div class='column is-8 is-offset-2'>
           <form @submit.prevent='add'>
             <div class='field has-addons'>
               <p class='control is-expanded'>
-                <input type='text' class='input' v-model='description' placeholder='Enter a task. (Separate by colon to categorize)' autocomplete='on' list='categories'>
+                <input type='text' class='input is-medium' v-model='description' placeholder='Enter a task. (Separate by colon to categorize)' autocomplete='on' list='categories'>
               </p>
               <p class='control'>
-                <button class='button is-info' type='submit'>Add</button>
+                <button class='button is-info is-medium' type='submit'>Add</button>
               </p>
             </div>
           </form>
@@ -42,10 +42,10 @@
         </div>
       </div>
 
-      <div class='columns is-mobile'>
-        <div class='column is-8 is-offset-2'>
+      <div class='columns is-narrow-mobile'>
+        <div class='column is-8 is-offset-2 content is-medium'>
           <div v-cloak v-for='category in categories' :key='category' class='mt-3'>
-            <h1 class='has-text-weight-semibold' v-text='category'></h1>
+            <h4 class='has-text-weight-semibold' v-text='category'></h4>
             <transition-group name='list' tag='ul'>
               <li class='list-item' v-for='(task, i) in categoryTasks(category)' :key='task.date'>
                 <label class='checkbox'>
