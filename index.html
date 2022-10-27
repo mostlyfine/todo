@@ -49,15 +49,22 @@
             <transition-group name='list' tag='ul'>
               <li class='list-item' v-for='(task, i) in categoryTasks(category)' :key='task.date'>
                 <label class='checkbox'>
-                  <input type='checkbox' @change='remove(task.date)' />
+                  <input type='checkbox' @change='complete(task.date)' />
                   {{task.description}}
                   <span class='is-size-7'>({{task.date | relativeTime}})</span>
                 </label>
               </li>
             </transition-group>
           </div>
-
+          <div class='mt-3'>
+            <h4>Completes</h4>
+            <li class='list-item' v-for='(task, i) in completeTasks' :key='task.date'>
+              <s>{{task.description}}</s>
+              <span class='is-size-7'>({{task.completeAt | absoluteTime}})</span>
+            </li>
+          </div>
         </div>
+
       </div>
     </div>
 
@@ -72,6 +79,7 @@
           return {
             description: '',
             tasks: [],
+            completeTasks: [],
             useLocalStorage: true
           }
         },
@@ -88,6 +96,9 @@
         filters: {
           relativeTime(time) {
             return dayjs(time).fromNow();
+          },
+          absoluteTime(time) {
+            return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
           }
         },
         methods: {
@@ -111,20 +122,31 @@
             }
             this.reset();
           },
-          remove(date) {
+          complete(date) {
             const i = this.tasks.findIndex(x => x.date === date);
+            const task = this.tasks[i];
+            task.completeTask = new Date().getTime();
+            this.completeTasks.push(task);
             this.tasks.splice(i, 1);
             this.save();
           },
           save() {
             if(this.useLocalStorage) {
-              localStorage.setItem('todo', JSON.stringify(this.tasks));
+              localStorage.setItem('tasks', JSON.stringify(this.tasks));
+              localStorage.setItem('completeTasks', JSON.stringify(this.completeTasks));
             }
           },
           load() {
             if(this.useLocalStorage) {
-              this.tasks = JSON.parse(localStorage.getItem('todo') || '[]');
+              this.tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+              this.completeTasks = JSON.parse(localStorage.getItem('completeTasks') || '[]');
+              this.refresh();
             }
+          },
+          refresh() {
+            const limit = dayjs(new Date().getTime()).subtract(10, 'm');
+            const refreshTasks = this.completeTasks.filter(t => dayjs(t.completeAt) >  limit);
+            this.completeTask = refreshTasks;
           }
         },
         created() {
