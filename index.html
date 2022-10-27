@@ -56,8 +56,8 @@
               </li>
             </transition-group>
           </div>
-          <div class='mt-3'>
-            <h4>Completes</h4>
+          <div v-if='completeTasks.length > 0' class='mt-3' v-cloak>
+            <h4>Complete</h4>
             <li class='list-item' v-for='(task, i) in completeTasks' :key='task.date'>
               <s>{{task.description}}</s>
               <span class='is-size-7'>({{task.completeAt | absoluteTime}})</span>
@@ -125,7 +125,7 @@
           complete(date) {
             const i = this.tasks.findIndex(x => x.date === date);
             const task = this.tasks[i];
-            task.completeTask = new Date().getTime();
+            task.completeAt = new Date().getTime();
             this.completeTasks.push(task);
             this.tasks.splice(i, 1);
             this.save();
@@ -144,9 +144,12 @@
             }
           },
           refresh() {
-            const limit = dayjs(new Date().getTime()).subtract(10, 'm');
-            const refreshTasks = this.completeTasks.filter(t => dayjs(t.completeAt) >  limit);
-            this.completeTask = refreshTasks;
+            const limit = dayjs(new Date().getTime()).subtract(10, 'm').unix();
+            // TODO
+          },
+          clear() {
+            this.completeTasks = [];
+            this.save();
           }
         },
         created() {
