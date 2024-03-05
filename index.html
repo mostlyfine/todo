@@ -85,11 +85,11 @@
         },
         computed: {
           categories() {
-            const c = this.tasks.map(t => t.category);
+            const c = this.tasks.map(t => t.category.toLowerCase());
             return Array.from(new Set(c)).sort(); // uniq
           },
           compact_categories() {
-            const c = this.tasks.filter(t => t.category).map(t => t.category);
+            const c = this.tasks.filter(t => t.category).map(t => t.category.toLowerCase());
             return Array.from(new Set(c)).sort(); // uniq
           }
         },
@@ -140,6 +140,7 @@
             if(this.useLocalStorage) {
               this.tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
               this.completeTasks = JSON.parse(localStorage.getItem('completeTasks') || '[]');
+              this.completeTasks = this.completeTasks.filter(t => dayjs(t.compleateAt) > dayjs().subtract(7, 'd'));
               this.refresh();
             }
           },
